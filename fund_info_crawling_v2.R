@@ -32,7 +32,7 @@ get_nav <- function(i){
   cat("\n",i)
   return(nav)
 }
-fund_nav<- lapply(1:1914, get_nav)
+fund_nav<- lapply(1:nrow(fund_info), get_nav)
 names(fund_nav) <- fund_info$FP_CODE
 
 ##################################################################
