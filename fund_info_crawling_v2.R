@@ -1,4 +1,5 @@
 library(jsonlite)
+library(tidyverse)
 library(dplyr)
 library(ggplot2)
 
@@ -6,10 +7,9 @@ library(ggplot2)
 url <- 'http://www.fundsupermarket.co.kr/fmm/FMM1010301/selectFundList.do?fsType01=B1&fstChk02=BB&fstChk03=&fstChk04=T&fstChk05=T&fstChk06=T&fstChk07=T&rlzRt=&type01_con1=-9999&type01_con2=9999&type02_con1=0&type02_con2=-999&type03_con1=0&type03_con2=20&saleRate=ON&afrcvRate=ON&gradeGbn=1&zeroin=T&mstar=&kfr=&fng=&type04_con1=0&type04_con2=100&type05_con1=0&type05_con2=100&type06_con1=0&type06_con2=100&sClass=N&eClass=N&fundName2=&pageNo=1&pageCnt=2000&openAbleYn=Y'
 url %>%
   readLines(encoding = "UTF-8") %>%
-  fromJSON() -> tmp
-tmp$json$resList -> fund_info
-rm(tmp, url)
-fund_info %>%
+  fromJSON() %>%
+  .$json %>%
+  .$resList %>%
   arrange(desc(RLZ_RT1), desc(RLZ_RT3)) -> fund_info
 fund_info %>%
   head()
@@ -17,11 +17,12 @@ fund_info %>%
 # 펀드별 기준가 크롤링 From Fundsupermarket
 url <- "http://m.fundsupermarket.co.kr/fmm/FMM1030101/selectDayNavResult.do?fpCode="
 get_nav <- function(i){
-  nav_url <- paste0(url, fund_info$FP_CODE[i])
-  nav_url %>%
-    read_json -> tmp
-  tmp$json$dayNavInfo %>%
-    toJSON() %>%
+  url %>%
+    paste0(fund_info$FP_CODE[i]) %>%
+    read_json %>%
+    .$json %>%
+    .$dayNavInfo %>%
+    toJSON %>%
     fromJSON %>%
     select(STD_DATE, NAV) -> nav
   nav$STD_DATE %>%
